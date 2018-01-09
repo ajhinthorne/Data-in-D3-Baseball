@@ -1,0 +1,15 @@
+data1<-rbeta(10000,5,2)
+data2<-rbeta(10000,2,5)
+data3<-rbeta(10000,5,5)
+plot(density(data3),main="Density")
+lines(density(data1),col="BLUE")
+lines(density(data2),col="RED")
+
+den1<-density(data1)
+den2<-density(data2)
+den3<-density(data3)
+library(entropy)
+KL.plugin(den1$y,den2$y)+KL.plugin(den2$y,den1$y)
+KL.plugin(den3$y,den2$y)+KL.plugin(den2$y,den3$y)
+KL.plugin(den3$y,den1$y)+KL.plugin(den1$y,den3$y)
+

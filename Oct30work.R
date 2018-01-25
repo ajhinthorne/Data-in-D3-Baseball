@@ -2,8 +2,8 @@ library(MASS)
 library(dplyr)
 library(ggplot2)
 
-Lefties<-as.data.frame(spraycharts%>%filter(bats=="L")%>%select(x,y,batter.name, batter.id, type,Description)%>%filter(type=="H")%>%mutate(y2=-y+250))
-Righties<-as.data.frame(spraycharts%>%filter(bats=="R")%>%select(x,y,batter.name,batter.id, type,Description)%>%filter(type=="H")%>%mutate(y2=-y+250))
+Lefties<-as.data.frame(spraycharts%>%filter(bats=="L")%>%dplyr::select(x,y,batter.name, batter.id, type,Description)%>%filter(type=="H")%>%mutate(y2=-y+250))
+Righties<-as.data.frame(spraycharts%>%filter(bats=="R")%>%dplyr::select(x,y,batter.name,batter.id, type,Description)%>%filter(type=="H")%>%mutate(y2=-y+250))
 
 id.left<-unique(Lefties$batter.id)
 id.right<-unique(Righties$batter.id)

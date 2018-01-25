@@ -1,4 +1,7 @@
 #K-Means Practice
+install.packages("dplyr")
+install.packages("ggplot2")
+
 
 #IRIS dataset
 library(datasets)
@@ -52,3 +55,4 @@ km.hd
 table(km.hd$cluster,iris$Species)
 
 iris%>%ggplot(aes(x=Petal.Length,y=Petal.Width,color=as.factor(km.hd$cluster),shape=Species,size=Sepal.Width))+geom_jitter()
+

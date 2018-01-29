@@ -20,9 +20,14 @@ find.box.scores <- function(website) {
   if (nchar(site2) < nchar(site) | nchar(site2) > 13)
     site <- site2
   urls <- c()
+  urls <- 
   for (i in 1:nrow(boxes)) {
-    urls[i] <- str_c(str_c(site, str_sub(url, boxes[i,1]+1, boxes[i,2]-1), sep=""), "", sep="")
-    urls[i] <- str_c(urls[i], "?view=plays")
+    urls.temp <- str_c(str_c(site, str_sub(url, boxes[i,1]+1, boxes[i,2]-1), sep=""), "", sep="")
+    urls.temp <- str_c(urls[i], "?view=plays")
+    for (j in 1:9) {
+      urls[k] <- str_c(urls.temp, "&inning="
+      k <- k + 1
+    }
   }
   pbp <- list()
   for (i in 1:length(urls)) {

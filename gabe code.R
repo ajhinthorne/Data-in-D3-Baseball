@@ -1,4 +1,6 @@
 field <- readPNG("baseballfieldbnw.PNG")
+innings<-c("1","2","3","4","5","6","7","8","9")
+website<-c("http://www.sagehens.com/sports/bsb/2016-17/schedule")
 
 require(XML)
 require(RCurl)
@@ -6,7 +8,7 @@ require(stringr)
 require(png)
 find.box.scores <- function(website) {
   url <- getURL(website)
-  boxscore <- gregexpr("Box Score", url)[[1]]
+  boxscore <- gregexpr("boxscores", url)[[1]]
   href <- gregexpr("a href=", url)[[1]]
   good.href <- c()
   for (i in 1:length(boxscore))
@@ -19,24 +21,26 @@ find.box.scores <- function(website) {
   site2 <- str_sub(website, 1, gregexpr("com", website)[[1]][1]+2)
   if (nchar(site2) < nchar(site) | nchar(site2) > 13)
     site <- site2
-  urls <- c()
-  urls <- 
+  urls.temp <- c()
   for (i in 1:nrow(boxes)) {
-    urls.temp <- str_c(str_c(site, str_sub(url, boxes[i,1]+1, boxes[i,2]-1), sep=""), "", sep="")
-    urls.temp <- str_c(urls[i], "?view=plays")
-    for (j in 1:9) {
-      urls[k] <- str_c(urls.temp, "&inning="
-      k <- k + 1
+    urls.temp [i] <- str_c(str_c(site, str_sub(url, boxes[i,1]+1, boxes[i,2]-1), sep=""), "", sep="")
     }
+###code good up to here
+  
+  urls<-c()
+  for (i in 1:nrow(boxes)){
+    urls[i] <- str_c(urls.temp[i], "?view=plays&inning=1","",sep="")
   }
-  pbp <- list()
-  for (i in 1:length(urls)) {
-    url <- getURL(urls[i])
-    parsedDoc <- readHTMLTable(url, stringsAsFactors=FALSE)
-    pbp[[i]] <- parsedDoc[[3]]
-  }
-  return(pbp)
+  
+pbp <- list()
+for (i in 1:length(urls)) {
+  pbp[[i]] <- getURL(urls[i])
+  trunc <- gregexpr("Top of         1st",pbp[[i]])
+  pbp[[i]] <- str_sub(pbp[[i]],trunc[[1]][1],nchar(pbp[[i]]))
 }
+return(pbp)
+}
+
 
 
 get.table <- function(name, playbyplays) {
@@ -101,8 +105,8 @@ table.output <- function(dataframe) {
 ### Sample Usage
 ####################
 
-website <- "http://loggerathletics.com/sports/bsb/2015-16/schedule"
-names <- c('Dunn', "Muramaru", "Dejesus", "Croney", "Hughes", "Moyes")
+website <-"http://www.sagehens.com/sports/bsb/2016-17/schedule"
+names <- c("A. Hinthorne","C. Hulse","B. Rogan","D. Skerrett")
 playbyplays <- find.box.scores(website)
 
 
@@ -130,16 +134,19 @@ for (i in 1:length(playbyplays)) {
   playbyplays[[i]] <- gsub("MOYES, Ryan", "Moyes", playbyplays[[i]])
 }
 
+stats.Adam<-get.table(names[1],playbyplays)
+stats.Cade<-get.table(names[2],playbyplays)
+stats.Bryce<-get.table(names[3],playbyplays)
+stats.Duncan<-get.table(names[4],playbyplays)
 
-par(mfrow=c(3,2), mar=c(0,0,0,0))
 for (w in 1:6) {
   name <- names[w]
   
   stats <- get.table(name, playbyplays)
-  
+}
   plot(c(-1,1), c(0,2), type='n', xlab="", ylab="", xaxt='n', yaxt='n')
   lim <- par()
-  rasterImage(field, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
+ 
   
   
   spots <- matrix(c(-.4, .48, -.4, .9, -.2, .69, 0, 1, .4, .48, .4, .9, .2, .69, 0, 1.3, -.6, 1.3, .6, 1.3, -.7, .6, .7, .6, -.35, 1.3, .35, 1.3, 0, .4), nrow=2)

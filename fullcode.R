@@ -1,7 +1,7 @@
 ###full code
 
 #Defining the Play by Play Locations
-
+library(MASS)
 library(png)
 library(dplyr)
 library(ggplot2)
@@ -13,6 +13,16 @@ field$height<-unit(1,"npc")
 field$width<-unit(1,"npc")
 hitscatter+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_jitter()
 outscatter+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_jitter()
+
+seager.ggplot<-spraycharts%>%filter(batter.name=="Kyle Seager")%>%filter(Description!="Home Run")%>%ggplot(aes(x=x,y=-y+250,ymin=0,ymax=250,xmin=0,xmax=250))
+seager.ggplot+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density2d()+ggtitle("Kyle Seager 2014 Season")+xlab("x")+ylab("y")
+
+seager.ggplot
+seager.contour
+
+
+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_jitter()
+
 
 positions <- c("to left field", "up the middle", "through the left side", "to right field", "through the right side", "to left center", "to right center", "down the left field line", "down the right field line", "to third base", "to short stop", "to second base", "to first base", "to center field", "down the lf line", "down the rf line")
 
@@ -157,8 +167,8 @@ popout.lfl<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z>=25)%>%filt
 popout.rfl<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z>=25)%>%filter(x>=5)%>%filter(z<=(1.25*x)-121.25)
 popout.ss<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z<=235)%>%filter(z<=(-5.5*x)+722.5)%>%filter(z>=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
 popout.2b<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
-popout.3b<-spraycharts2%>%filter(Description=="Pop Out" | Description="Bunt Pop Out")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
-popout.1b<-spraycharts2%>%filter(Description=="Pop Out" | Description="Bunt Pop Out")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)
+popout.3b<-spraycharts2%>%filter(Description=="Pop Out" | Description=="Bunt Pop Out")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
+popout.1b<-spraycharts2%>%filter(Description=="Pop Out" | Description=="Bunt Pop Out")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)
 popout.tls<-bind_rows(popout.3b,popout.ss)
 popout.trs<-bind_rows(popout.2b,popout.1b)
 popout.c<-spraycharts2%>%filter(Description=="Pop Out" | Description=="Bunt Pop Out")%>%filter(z<=60)
@@ -242,8 +252,14 @@ rbind.Adam<-rbind(groundout.utm,groundout.c,groundout.1b,groundout.2b,groundout.
 weights.Adam<-c(rep(3/76,length(groundout.utm$Description)),rep(1/76,length(groundout.c$Description)),rep(1/76,length(groundout.1b$Description)),rep(6/76,length(groundout.2b$Description)),rep(6/76,length(groundout.3b$Description)),rep(11/76,length(groundout.ss$Description)),rep(3/76,length(popout.2b$Description)),rep(3/76,length(flyout.cf$Description)),
                 rep(7/76,length(flyout.rf$Description)),rep(2/76,length(lineout.2b$Description)),rep(1/76,length(lineout.ss$Description)),rep(1/76,length(lineout.cf$Description)),rep(1/76,length(lineout.rf$Description)),rep(2/76,length(error.2b$Description)),rep(1/76,length(error.ss$Description)),rep(5/76,length(single.lf$Description)),rep(9/76,length(single.rf$Description)),
                 rep(1/76,length(single.lcf$Description)),rep(1/76,length(single.3b$Description)),rep(2/76,length(single.2b$Description)),rep(4/76,length(single.cf$Description)),rep(1/76,length(single.rfl$Description)),rep(1/76,length(double.lf$Description)),rep(1/76,length(double.lfl$Description)),rep(1/76,length(double.rfl$Description)))
-rbind.Adam%>%ggplot(aes(x=x,y=z,weight=weights.Adam))+xlim(0,250)+ylim(0,250)+geom_bin2d(binwidth=c(2.5,2.5))
+rbind.Adam%>%ggplot(aes(x=x,y=z,weight=weights.Adam))+xlim(0,250)+ylim(0,250)+geom_density2d()
 length(rbind.Adam$Description)
+densitymat.Adam<-rbind.Adam%>%dplyr::select(x,z)%>%mutate(x1=as.numeric(x))%>%mutate(x2=as.numeric(z))
+x.Adam<-c(densitymat.Adam$x1)
+y.Adam<-c(densitymat.Adam$x2)
+density.Adam<-ggtern::kde2d.weighted(x=x.Adam,y=y.Adam,w=weights.Adam)
+contour(density.Adam$x,density.Adam$y,density.Adam$z)
+
 ###KLstuff
 #Creating KL Distances
 
@@ -312,11 +328,32 @@ for(i in 1:5){
 }
 
 data.den
+plot(x=seq(1,5,1),y=data.den[,2],ylim=c(0,5))
+
+dist.Adam<-c()
+for(i in 1:100){
+  player.vector.a<-c()
+  player.den.a<-c()
+  player.vector.a<-spraycharts%>%filter(batter.name==tophundred[i])%>%filter(type=="H")%>%filter(Description!="Home Run")%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
+  player.den.a<-kde2d(player.vector.a$x,player.vector.a$y2)
+  
+  KL.dist<-KL.plugin(player.den.a$z,density.Adam$z)+KL.plugin(density.Adam$z,player.den.a$z)
+  dist.Adam[i]<-KL.dist
+}
+plot(seq(1,100,1),dist.Adam)
+data.den2<-data.den2[1:100,1:100]
+
+dist.Adam0<-c(dist.Adam,0)
+data.den2<-cbind(data.den2,dist.Adam)
+data.den2<-rbind(data.den2,dist.Adam0)
+data.den
 
 set.seed(47)
 kmeans.topfive<-kmeans(data.den,2)
 kmeans.topfive
 
+kmeans.tophundred<-kmeans(data.den2,8)
+kmeans.tophundred
 ###checking how the kmeans function did
 
 
@@ -337,24 +374,25 @@ for (i in 1:length(names)) {
     bad <- c(bad, i)
 }
 names <- names[-bad]
-tophundred<-names[1:100]
+set.seed(47)
+tophundred<-sample(names,100,replace=FALSE)
 topfifty<-names[1:50]
 library(MASS)
 library(entropy)
 #Be sure to change matrix size
-data.den2<-matrix(data=NA,nrow=length(names),ncol=length(names))
+data.den2<-matrix(data=NA,nrow=length(tophundred),ncol=length(tophundred))
 #matches i and j down here
-for(i in 1:length(names)){
-  for(j in 1:length(names)){
+for(i in 1:length(tophundred)){
+  for(j in 1:length(tophundred)){
     
     player.vector.a<-c()
     player.den.a<-c()
-    player.vector.a<-spraycharts%>%filter(batter.name==names[i])%>%filter(Description!="Home Run")%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
+    player.vector.a<-spraycharts%>%filter(batter.name==tophundred[i])%>%filter(Description!="Home Run")%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
     player.den.a<-kde2d(player.vector.a$x,player.vector.a$y2)
     
     player.vector.b<-c()
     player.den.b<-c()
-    player.vector.b<-spraycharts%>%filter(batter.name==names[j])%>%filter(Description!="Home Run")%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
+    player.vector.b<-spraycharts%>%filter(batter.name==tophundred[j])%>%filter(Description!="Home Run")%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
     player.den.b<-kde2d(player.vector.b$x,player.vector.b$y2)
     
     KL.dist<-KL.plugin(player.den.a$z,player.den.b$z)+KL.plugin(player.den.b$z,player.den.a$z)
@@ -366,16 +404,69 @@ for(i in 1:length(names)){
 data.den2
 
 set.seed(47)
-km.2<-kmeans(data.den2,5,nstart=10)
-km.3<-kmeans(data.den2,5)
-km.3
+km.2<-kmeans(data.den2,7)
+km.2
 
-#Gap Statistic/# of jumps
-library(cstab)
-clusters<-cDistance(data.den2,c(2:49),method="kmeans",kmIter=10)
-clusters
-plot(clusters$Jumps)
+k.means<-as.data.frame(cbind(tophundred,km.2$cluster))
+type1<-k.means%>%filter(km.2$cluster=="1")
+type2<-k.means%>%filter(km.2$cluster=="2")
+type3<-k.means%>%filter(km.2$cluster=="3")
+type4<-k.means%>%filter(km.2$cluster=="4")
+type5<-k.means%>%filter(km.2$cluster=="5")
+type7<-k.means%>%filter(km.2$cluster=="7")
 
-###kmeans stuff
+type1.spray<-spraycharts%>%filter(batter.name %in% type1$tophundred)%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
+type2.spray<-spraycharts%>%filter(batter.name %in% type2$tophundred)%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
+type3.spray<-spraycharts%>%filter(batter.name %in% type3$tophundred)%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
+type4.spray<-spraycharts%>%filter(batter.name %in% type4$tophundred)%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
+type5.spray<-spraycharts%>%filter(batter.name %in% type5$tophundred)%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
+type7.spray<-spraycharts%>%filter(batter.name %in% type7$tophundred)%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
+
+full.spray<-rbind(type1.spray,type2.spray,type3.spray,type4.spray,type5.spray,type7.spray)
+
+type1.den<-kde2d(type1.spray$x,type1.spray$y2)
+type2.den<-kde2d(type2.spray$x,type2.spray$y2)
+type3.den<-kde2d(type3.spray$x,type3.spray$y2)
+type4.den<-kde2d(type4.spray$x,type4.spray$y2)
+type5.den<-kde2d(type5.spray$x,type5.spray$y2)
+type7.den<-kde2d(type7.spray$x,type7.spray$y2)
+
+type1.KL<-KL.plugin(density.Adam$z,type1.den$z)+KL.plugin(type1.den$z,density.Adam$z)
+type2.KL<-KL.plugin(density.Adam$z,type2.den$z)+KL.plugin(type2.den$z,density.Adam$z)
+type3.KL<-KL.plugin(density.Adam$z,type3.den$z)+KL.plugin(type3.den$z,density.Adam$z)
+type4.KL<-KL.plugin(density.Adam$z,type4.den$z)+KL.plugin(type4.den$z,density.Adam$z)
+type5.KL<-KL.plugin(density.Adam$z,type5.den$z)+KL.plugin(type5.den$z,density.Adam$z)
+type7.KL<-KL.plugin(density.Adam$z,type7.den$z)+KL.plugin(type7.den$z,density.Adam$z)
+
+KL.vector<-c(type1.KL,type2.KL,type3.KL,type4.KL,type5.KL,type7.KL)
+prob.vector.Adam<-(1/KL.vector)/sum(1/KL.vector)
+length.vector<-c(nrow(type1.spray),nrow(type2.spray),nrow(type3.spray),nrow(type4.spray),nrow(type5.spray),nrow(type7.spray))
+
+full.prob.vector<-c(rep(prob.vector.Adam[1],length.vector[1]),rep(prob.vector.Adam[2],length.vector[2]),rep(prob.vector.Adam[3],length.vector[3]),
+                    rep(prob.vector.Adam[4],length.vector[4]),rep(prob.vector.Adam[5],length.vector[5]),rep(prob.vector.Adam[6],length.vector[6]))
 
 
+iteration1.Adam<-kde2d.weighted(full.spray$x,full.spray$y2,w=full.prob.vector)
+contour(iteration1.Adam)
+
+type1b.KL<-KL.plugin(iteration1.Adam$z,type1.den$z)+KL.plugin(type1.den$z,iteration1.Adam$z)
+type2b.KL<-KL.plugin(iteration1.Adam$z,type2.den$z)+KL.plugin(type2.den$z,iteration1.Adam$z)
+type3b.KL<-KL.plugin(iteration1.Adam$z,type3.den$z)+KL.plugin(type3.den$z,iteration1.Adam$z)
+type4b.KL<-KL.plugin(iteration1.Adam$z,type4.den$z)+KL.plugin(type4.den$z,iteration1.Adam$z)
+type5b.KL<-KL.plugin(iteration1.Adam$z,type5.den$z)+KL.plugin(type5.den$z,iteration1.Adam$z)
+type7b.KL<-KL.plugin(iteration1.Adam$z,type7.den$z)+KL.plugin(type7.den$z,iteration1.Adam$z)
+
+KL.vectorb<-c(type1b.KL,type2b.KL,type3b.KL,type4b.KL,type5b.KL,type7b.KL)
+prob.vectorb.Adam<-(1/KL.vectorb)/sum(1/KL.vectorb)
+length.vector<-c(nrow(type1.spray),nrow(type2.spray),nrow(type3.spray),nrow(type4.spray),nrow(type5.spray),nrow(type7.spray))
+
+full.prob.vector<-c(rep(prob.vectorb.Adam[1],length.vector[1]),rep(prob.vectorb.Adam[2],length.vector[2]),rep(prob.vectorb.Adam[3],length.vector[3]),
+                    rep(prob.vectorb.Adam[4],length.vector[4]),rep(prob.vectorb.Adam[5],length.vector[5]),rep(prob.vectorb.Adam[6],length.vector[6]))
+
+iteration2.Adam<-kde2d.weighted(full.spray$x,full.spray$y2,w=full.prob.vector)
+contour(iteration2.Adam)
+
+segment.data<-c(50,50)
+ggplot(full.spray, aes(x,y2, weights=full.prob.vector,ymin=0,ymax=250,xmin=0,xmax=250))+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density_2d()
+
+       

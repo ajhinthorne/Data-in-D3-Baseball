@@ -14,8 +14,8 @@ field$width<-unit(1,"npc")
 hitscatter+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_jitter()
 outscatter+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_jitter()
 
-seager.ggplot<-spraycharts%>%filter(batter.name=="Kyle Seager")%>%filter(Description!="Home Run")%>%ggplot(aes(x=x,y=-y+250,ymin=0,ymax=250,xmin=0,xmax=250))
-seager.ggplot+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density2d()+ggtitle("Kyle Seager 2014 Season")+xlab("x")+ylab("y")
+seager.ggplot<-spraycharts%>%filter(batter.name=="Kyle Seager")%>%filter(Description!="Home Run")%>%ggplot(aes(x=x,y=-y+250,color=Description,ymin=0,ymax=250,xmin=0,xmax=250))
+seager.ggplot+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_jitter()+ggtitle("Kyle Seager 2014 Season")+xlab("x")+ylab("y")
 
 seager.ggplot
 seager.contour
@@ -252,7 +252,7 @@ rbind.Adam<-rbind(groundout.utm,groundout.c,groundout.1b,groundout.2b,groundout.
 weights.Adam<-c(rep(3/76,length(groundout.utm$Description)),rep(1/76,length(groundout.c$Description)),rep(1/76,length(groundout.1b$Description)),rep(6/76,length(groundout.2b$Description)),rep(6/76,length(groundout.3b$Description)),rep(11/76,length(groundout.ss$Description)),rep(3/76,length(popout.2b$Description)),rep(3/76,length(flyout.cf$Description)),
                 rep(7/76,length(flyout.rf$Description)),rep(2/76,length(lineout.2b$Description)),rep(1/76,length(lineout.ss$Description)),rep(1/76,length(lineout.cf$Description)),rep(1/76,length(lineout.rf$Description)),rep(2/76,length(error.2b$Description)),rep(1/76,length(error.ss$Description)),rep(5/76,length(single.lf$Description)),rep(9/76,length(single.rf$Description)),
                 rep(1/76,length(single.lcf$Description)),rep(1/76,length(single.3b$Description)),rep(2/76,length(single.2b$Description)),rep(4/76,length(single.cf$Description)),rep(1/76,length(single.rfl$Description)),rep(1/76,length(double.lf$Description)),rep(1/76,length(double.lfl$Description)),rep(1/76,length(double.rfl$Description)))
-rbind.Adam%>%ggplot(aes(x=x,y=z,weight=weights.Adam))+xlim(0,250)+ylim(0,250)+geom_density2d()
+rbind.Adam%>%ggplot(aes(x=x,y=z,weight=weights.Adam))+xlim(0,250)+ylim(0,250)+stat_density2d()
 length(rbind.Adam$Description)
 densitymat.Adam<-rbind.Adam%>%dplyr::select(x,z)%>%mutate(x1=as.numeric(x))%>%mutate(x2=as.numeric(z))
 x.Adam<-c(densitymat.Adam$x1)
@@ -469,4 +469,7 @@ contour(iteration2.Adam)
 segment.data<-c(50,50)
 ggplot(full.spray, aes(x,y2, weights=full.prob.vector,ymin=0,ymax=250,xmin=0,xmax=250))+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density_2d()
 
-       
+#pool top hundred....
+
+km.2
+write your own kmeans 

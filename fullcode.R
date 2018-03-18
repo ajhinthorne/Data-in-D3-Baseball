@@ -7,12 +7,27 @@ library(dplyr)
 library(ggplot2)
 hitscatter<-spraycharts%>%filter(type=="H")%>%filter(Description!="Home Run")%>%ggplot(aes(x=x,y=-y+250,color=Description,ymin=25,ymax=245))+geom_jitter()
 outscatter<-spraycharts%>%filter(type=="O")%>%ggplot(aes(x=x,y=-y+250,color=Description))+geom_jitter()
+left.den<-spraycharts%>%filter(bats=="L")%>%ggplot(aes(x=x,y=-y+250,xmax=250,xmin=0,ymax=250,ymin=0))+ggtitle("Left Handed Hitters")
+left.den+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density2d()
+
+right.den<-spraycharts%>%filter(bats=="R")%>%ggplot(aes(x=x,y=-y+250,xmax=250,xmin=0,ymax=250,ymin=0))+geom_density2d()+ggtitle("Right Handed Hitters")
+right.den+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density2d()
+lscat<-spraycharts%>%filter(bats=="L")%>%mutate(z=-y+250)
+rscat<-spraycharts%>%filter(bats=="R")%>%mutate(z=-y+250)
+left.2d<-kde2d(lscat$x,lscat$z)
+right.2d<-kde2d(rscat$x,rscat$z)
+
+KL.plugin(left.2d$z,right.2d$z)+KL.plugin(right.2d$z,left.2d$z)
+
 field<-readPNG('BaseballOverlay.PNG')
 field<-grid::rasterGrob(field, interpolate=TRUE)
 field$height<-unit(1,"npc")
 field$width<-unit(1,"npc")
 hitscatter+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_jitter()
 outscatter+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_jitter()
+
+
+
 
 seager.ggplot<-spraycharts%>%filter(batter.name=="Kyle Seager")%>%filter(Description!="Home Run")%>%ggplot(aes(x=x,y=-y+250,color=Description,ymin=0,ymax=250,xmin=0,xmax=250))
 seager.ggplot+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_jitter()+ggtitle("Kyle Seager 2014 Season")+xlab("x")+ylab("y")
@@ -22,6 +37,7 @@ seager.contour
 
 
 annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_jitter()
+
 
 
 positions <- c("to left field", "up the middle", "through the left side", "to right field", "through the right side", "to left center", "to right center", "down the left field line", "down the right field line", "to third base", "to short stop", "to second base", "to first base", "to center field", "down the lf line", "down the rf line")

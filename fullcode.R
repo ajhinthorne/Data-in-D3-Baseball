@@ -64,7 +64,7 @@ hitscatter5<-hitscatter4+geom_abline(slope=-.5,intercept=207.5)+geom_abline(slop
 hitscatter5
 
 
-spraycharts2<-spraycharts%>%dplyr::select("Description","x","y","type")%>%mutate(z=-y+250)
+spraycharts2<-spraycharts%>%dplyr::select("Description","x","y","type","batter.name")%>%mutate(z=-y+250)
 View(spraycharts2)
 
 single.lf<-spraycharts2%>%filter(Description=="Single")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)

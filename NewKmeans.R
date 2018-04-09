@@ -254,8 +254,111 @@ double.player<-double.rcf%>%filter(batter.name %in% names)
 groupdens[i,]<-kde2d(double.player$x,double.player$z,lims = c(0,250,0,250))$z
 }
 
+for (i in 1:nrow(groupdens)){
+  for (j in 1:ncol(groupdens)){
+
+groupdens[i,j]<-ifelse(groupdens[i,j]==0,1e-300,groupdens[i,j])
+    
+  }}
+
+
+
 centerdist<-matrix(c(NA),6,6)
 for (i in 1:6){
   for (j in 1:6){
-    centerdist<-.5*(KL.plugin(groupdens[1,],groupdens[2,])+KL.plugin(groupdens[2,],groupdens[1,]))
-  }}                      
+    centerdist[i,j]<-.5*(KL.plugin(groupdens[i,],groupdens[j,])+KL.plugin(groupdens[j,],groupdens[i,]))
+  }}  
+double.KL<-sum(centerdist)/2
+
+#for positions
+
+pvals<-c()
+for (z in 1:100){
+  finalclust<-list()
+  finalKL<-c()
+  KL.perms<-c()
+  
+  finalclust<-kmeanie(dataz,6)
+  
+  groupdens<-matrix(c(NA),6,625)
+  for (i in 1:6){
+    names<-c()
+    names<-topfifty[finalclust[[1]]==i]
+    
+    double.player<-double.lcf%>%filter(batter.name %in% names)
+    if (nrow(double.player)==0){
+      groupdens[i,]<-c(rep(NA,625))
+    } else {
+      groupdens[i,]<-kde2d(double.player$x,double.player$z,lims = c(0,250,0,250),h=10)$z
+    }
+  }
+  
+  groupdens<-na.omit(groupdens)
+  
+  
+  
+  for (i in 1:nrow(groupdens)){
+    for (j in 1:ncol(groupdens)){
+      
+      groupdens[i,j]<-ifelse(groupdens[i,j]==0,1e-300,groupdens[i,j])
+      
+    }}
+  
+  
+  finaldist<-matrix(c(NA),nrow(groupdens),nrow(groupdens))
+  for (i in 1:nrow(groupdens)){
+    for (j in 1:nrow(groupdens)){
+      finaldist[i,j]<-.5*(KL.plugin(groupdens[i,],groupdens[j,])+KL.plugin(groupdens[j,],groupdens[i,]))
+    }}
+  finalKL<-sum(finaldist)/2
+  
+  #randomly assign clusters
+  KL.perms<-c()
+  for (m in 1:100){
+    permclust<-c()
+    permclust<-sample(finalclust[[1]],50,replace=FALSE)
+    table2<-as.data.frame(table(permclust))
+    newgroupdens<-matrix(c(NA),6,625)
+    for (i in 1:6){
+      names<-c()
+      names<-topfifty[permclust==i]
+      
+      double.player<-double.lcf%>%filter(batter.name %in% names)
+      if (nrow(double.player)==0){
+        newgroupdens[i,]<-c(rep(0,625))
+      } else {
+      newgroupdens[i,]<-kde2d(double.player$x,double.player$z,lims = c(0,250,0,250),h=10)$z
+      }
+    }
+    
+    newgroupdens<-na.omit(newgroupdens)
+    
+    
+    
+    for (i in 1:nrow(newgroupdens)){
+      for (j in 1:ncol(newgroupdens)){
+        
+        newgroupdens[i,j]<-ifelse(newgroupdens[i,j]==0,1e-300,newgroupdens[i,j])
+        
+      }}
+    
+    
+    centerdist<-matrix(c(NA),nrow(newgroupdens),nrow(newgroupdens))
+    for (i in 1:nrow(newgroupdens)){
+      for (j in 1:nrow(newgroupdens)){
+        centerdist[i,j]<-.5*(KL.plugin(newgroupdens[i,],newgroupdens[j,])+KL.plugin(newgroupdens[i,],newgroupdens[j,]))
+      }}
+
+    KL.perms[m]<-sum(centerdist)/2
+  }
+  pvals[z]<-sum(ifelse(KL.perms>finalKL,1,0))/100
+}
+
+
+#permclust for positions
+single.des<-c("single.lf","single.rf","single.cf2","single.utm","single.lcf","single.rcf","single.lfl","single.rfl","single.ss","single.2b","single.3b","single.1b","single.tls","single.trs")
+double.des<-c("double.lf","double.rf","double.cf2","double.utm","double.lcf","double.rcf","double.lfl","double.rfl","double.ss","double.2b","double.3b","double.1b","double.tls","double.trs")
+triple.des<-c("triple.lf","triple.rf","triple.cf2","triple.utm","triple.lcf","triple.rcf","triple.lfl","triple.rfl","triple.ss","triple.2b","triple.3b","triple.1b","triple.tls","triple.trs")
+descriptions<-c(single.des,double.des,triple.des)
+
+

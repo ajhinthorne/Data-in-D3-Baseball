@@ -215,139 +215,7 @@ triples.of<-bind_rows(triple.lf,triple.rf,triple.cf2,triple.lcf,triple.rcf,tripl
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-###Practice Matrix
-x<-c(runif(10,0,10))
-y<-c(runif(10,0,10))
-co<-cbind(as.integer(x),as.integer(y))
-plot(co[,1],co[,2])
-km.co<-kmeans(co,2)
-library(ggplot2)
-library(dplyr)
-as.data.frame(co)%>%ggplot(aes(x=x,y=y,color=km.co$cluster))+geom_jitter()
-d.co<-matrix(c(NA),10,10)
-for (i in 1:10){
-  for (j in 1:10){
-    d.co[i,j]<-ifelse(i==j,0,sqrt(((co[i,1]-co[j,1])^2)+((co[i,2]-co[j,2])^2)))
-  }
-}
-#d.co is now the test distance matrix
-km.d<-kmeans(d.co,2)
-km.co$cluster
-km.d$cluster
-
-d.mat<-d.co
-numb<-2
-cluster<-function(d.mat,numb){}
-#starting clusters
-st<-sample(1:nrow(d.mat),numb,replace=FALSE)
-mins<-c()
-for (i in 1:nrow(d.mat)){
-  mins[i]<-min(d.mat[st[1:numb],i])
-}
-clust<-c()
-for (i in 1:nrow(d.mat)){
-  TF<-c()
-  TF<-d.co[,i]==mins[i]
-  TF<-c(TF[st[1:length(st)]])
-  clust[i]<-which(TF=="TRUE")
-}
-
-#finding new centers
-labels<-c(1:numb)
-f.st<-as.data.frame(cbind(d.mat,clust))
-cent<-c()
-group<-c()
-
-for (j in 1:length(labels)){
-  group<-clust==labels[j]
-  group<-which(group==TRUE)
-  cs<-f.st[group,group]
-  cent[j]<-mean(as.numeric(cs[labels[j],]))
-}
-
-
-#new clusters
-newmins<-c()
-for (i in 1:nrow(d.co)){
-  col<-matrix(c(NA),nrow(d.co),length(cent))
-  for (j in 1:length(cent)){
-    col[,j]<-abs(d.co[,1]-cent[j])
-  }
-  for (i in 1:nrow(col)){
-    newclust<-which(col[,1])
-  }
-  newmins<-
-}
-newclust<-c()
-for (i in 1:nrow(d.co)){
-  TF<-c()
-  TF<-d.co[,i]==newmins[i]
-  TF<-c(TF[cent[1:length(cent)]])
-  newclust[i]<-which(TF=="TRUE")
-}
-return(newclust)
-
-}
-
-
-cent.b<-f.st%>%filter(clust==2)%>%summarise_all(funs(mean))
-cent.a<-c(cent.a$V1,cent.a$V2)
-cent.b<-c(cent.b$V1,cent.b$V2)
-
-clustb<-c()
-for (i in 1:10){
-  clustb[i]<-c(ifelse(dist(rbind(co[i,],cent.a))<dist(rbind(co[i,],cent.b)),1,2))
-}
-f.tw<-as.data.frame(cbind(co,clust))
-cent.a<-f.tw%>%filter(clust==1)%>%summarise_all(funs(mean))
-cent.b<-f.tw%>%filter(clust==2)%>%summarise_all(funs(mean))
-cent.a<-c(cent.a$V1,cent.a$V2)
-cent.b<-c(cent.b$V1,cent.b$V2)
-
-
-
-}  
-d.co<-dist(co)
-clu<-hclust(d.co)
-plot(clu)
-
-topten<-c("Jose Altuve","Miguel Cabrera","Ian Kinsler","Robinson Cano","Ben Revere","Adrian Beltre","Hunter Pence","Dee Gordon","Yonder Alonso","Howie Kendrick")
-dataz<-matrix(c(NA),nrow=50,ncol=625)
-for (i in 1:50){
-  x<-c(0,250)
-  y<-c(0,250)
-  player.vector<-spraycharts%>%filter(batter.name==topfifty[i])%>%filter(Description!="Home Run")%>%filter(type=="H")%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
-  player.den<-kde2d(player.vector$x,player.vector$y2,lims=c(range(x),range(y)))
-  den.vector<-as.vector(player.den$z)
-  dataz[i,]<-den.vector
-  
-}
-
-den.matrix<-matrix(c(den.vector),25,25)
-for(i in 1:2){
-  contour(x=seq(1,25,1),y=seq(1,25,1),z=matrix(c(cent[i,]),25,25))
-  
-  contour(x=seq(1,25,1),y=seq(1,25,1),z=matrix(c(newcent[i,]),25,25))}
-
+###kmeans for large densities
 kmeanie <- function(data, k) {
   n <- nrow(data)
   centpick <- sample(n,k)
@@ -399,8 +267,11 @@ kmeanie <- function(data, k) {
   }
   return(list(clust,newcent))
   
-}  
+} 
 
+
+###Jensen-shannon divergence code from KL.plugin
+library(entropy)
 JS.dist<-function(dataa,datab){
   
   JS.dist<-c()
@@ -411,6 +282,8 @@ JS.dist<-function(dataa,datab){
   return(JS.dist)
 }
 
+
+###checking optimal clusters
 WWS<-c()
 BSS<-c()
 k<-20
@@ -441,7 +314,7 @@ for (m in 1:k){
 
 finalclust[[1]]
 
-#p-value (permutation test)
+#p-value (permutation testing)
 pvals<-c()
 finalKL<-c()
 KL.perms<-c()

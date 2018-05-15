@@ -9,10 +9,10 @@ require(png)
 find.box.scores <- function(website) {
   url <- getURL(website)
   boxscore <- gregexpr("boxscores", url)[[1]]
-  href <- gregexpr("a href=", url)[[1]]
+  href <- gregexpr("href=", url)[[1]]
   good.href <- c()
-  for (i in 1:length(boxscore))
-    good.href[i] <- max((href<boxscore[i])*href) 
+  for (i in 1:length(boxscore)){
+    good.href[i] <- max((href<boxscore[i])*href)}
   quotes <- gregexpr('"', url)[[1]]
   boxes <- c()
   for (i in 1:length(good.href))
@@ -106,7 +106,7 @@ table.output <- function(dataframe) {
 ####################
 
 website <-"http://www.sagehens.com/sports/bsb/2016-17/schedule"
-names <- c("A. Hinthorne","C. Hulse","B. Rogan","D. Skerrett")
+names <- c("T. Nishioka")
 playbyplays <- find.box.scores(website)
 
 
@@ -138,6 +138,30 @@ stats.Adam<-get.table(names[1],playbyplays)
 stats.Cade<-get.table(names[2],playbyplays)
 stats.Bryce<-get.table(names[3],playbyplays)
 stats.Duncan<-get.table(names[4],playbyplays)
+
+Tanner.stats<-get.table(names[1],playbyplays)
+Tanner.stats<-as.data.frame(Tanner.stats)
+Tanner.stats<-Tanner.stats%>%filter(outcomes %in% c("singled","doubled","tripled"))
+Tanner.stats<-Tanner.stats%>%filter(occurences!=0)
+sum(Tanner.stats$occurences)
+
+rbind.Tanner<-rbind(single.lf,single.utm,single.tls,single.rf,single.trs,single.rcf,single.3b,single.cf2,single.lfl,double.lf,double.rf,double.lcf,double.rcf,double.cf2,double.lfl,triple.cf2)
+weights.Tanner<-c(rep(9/46,length(single.lf$Description)),rep(2/46,length(single.utm$Description)),rep(3/46,length(single.tls$Description)),rep(5/46,length(single.rf$Description)),rep(1/46,length(single.trs$Description)),rep(1/46,length(single.rcf$Description)),rep(2/46,length(single.3b$Description)),rep(7/46,length(single.cf2$Description)),rep(3/46,length(single.lfl$Description))
+                  ,rep(3/46,length(double.lf$Description)),rep(1/46,length(double.rf$Description)),rep(1/46,length(double.lcf$Description)),rep(1/46,length(double.rcf$Description)),rep(2/46,length(double.cf2$Description)),rep(4/46,length(double.lfl$Description)),rep(1/46,length(triple.cf2$Description)))
+rbind.Tanner%>%ggplot(aes(x=x,y=z,weight=weights.Tanner))+xlim(0,250)+ylim(0,250)+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+stat_density2d()+ggtitle("F bar for Tanner Nishioka")
+Tanner.kde<-kde2d.weighted(rbind.Tanner$x,rbind.Tanner$z,w=weights.Tanner)
+
+Tan.dist<-c()
+for (i in 1:6){
+  Tan.dist[i]<-KL.plugin(Tanner.kde$z,finalclust[[2]][i,])+KL.plugin(finalclust[[2]][i,],Tanner.kde$z)
+}
+
+
+weights.Adam<-c(rep(3/76,length(single.lf$Description)),rep(1/76,length(single.utm$Description)),rep(1/76,length(groundout.1b$Description)),rep(6/76,length(groundout.2b$Description)),rep(6/76,length(groundout.3b$Description)),rep(11/76,length(groundout.ss$Description)),rep(3/76,length(popout.2b$Description)),rep(3/76,length(flyout.cf$Description)),
+                rep(7/76,length(flyout.rf$Description)),rep(2/76,length(lineout.2b$Description)),rep(1/76,length(lineout.ss$Description)),rep(1/76,length(lineout.cf$Description)),rep(1/76,length(lineout.rf$Description)),rep(2/76,length(error.2b$Description)),rep(1/76,length(error.ss$Description)),rep(5/76,length(single.lf$Description)),rep(9/76,length(single.rf$Description)),
+                rep(1/76,length(single.lcf$Description)),rep(1/76,length(single.3b$Description)),rep(2/76,length(single.2b$Description)),rep(4/76,length(single.cf$Description)),rep(1/76,length(single.rfl$Description)),rep(1/76,length(double.lf$Description)),rep(1/76,length(double.lfl$Description)),rep(1/76,length(double.rfl$Description)))
+rbind.Adam%>%ggplot(aes(x=x,y=z,weight=weights.Adam))+xlim(0,250)+ylim(0,250)+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+stat_density2d()+ggtitle("F bar for Adam Hinthorne")
+
 
 for (w in 1:6) {
   name <- names[w]

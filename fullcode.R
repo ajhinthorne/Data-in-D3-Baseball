@@ -29,8 +29,8 @@ outscatter+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme
 
 
 
-seager.ggplot<-spraycharts%>%filter(batter.name=="Kyle Seager")%>%filter(Description!="Home Run")%>%ggplot(aes(x=x,y=-y+250,color=Description,ymin=0,ymax=250,xmin=0,xmax=250))
-seager.ggplot+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_jitter()+ggtitle("Kyle Seager 2014 Season")+xlab("x")+ylab("y")
+DavidOrtiz.ggplot<-spraycharts%>%filter(batter.name=="David Ortiz")%>%filter(Description!="Home Run")%>%filter(type=="H")%>%ggplot(aes(x=x,y=-y+250,ymin=0,ymax=250,xmin=0,xmax=250))
+DavidOrtiz.ggplot+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density2d()+ggtitle("David Ortiz 2014 Season")+xlab("x")+ylab("y")
 
 seager.ggplot
 seager.contour
@@ -84,6 +84,7 @@ single.3b<-spraycharts2%>%filter(Description=="Single")%>%filter(z<=235)%>%filte
 single.1b<-spraycharts2%>%filter(Description=="Single")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)
 single.tls<-bind_rows(single.3b,single.ss)
 single.trs<-bind_rows(single.2b,single.1b)
+singles.of<-bind_rows(single.lfl,single.lf,single.lcf,single.cf2,single.rcf,single.rf,single.rfl)
 
 double.lf<-spraycharts2%>%filter(Description=="Double")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
 double.rf<-spraycharts2%>%filter(Description=="Double")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)
@@ -102,6 +103,7 @@ double.3b<-spraycharts2%>%filter(Description=="Double")%>%filter(z<=235)%>%filte
 double.1b<-spraycharts2%>%filter(Description=="Double")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)
 double.tls<-bind_rows(double.3b,double.ss)
 double.trs<-bind_rows(double.2b,double.1b)
+doubles.of<-bind_rows(double.lf,double.rf,double.cf2,double.lcf,double.rcf,double.lfl,double.rfl)
 
 triple.lf<-spraycharts2%>%filter(Description=="Triple")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
 triple.rf<-spraycharts2%>%filter(Description=="Triple")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)
@@ -120,6 +122,7 @@ triple.3b<-spraycharts2%>%filter(Description=="Triple")%>%filter(z<=235)%>%filte
 triple.1b<-spraycharts2%>%filter(Description=="Triple")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)
 triple.tls<-bind_rows(triple.3b,triple.ss)
 triple.trs<-bind_rows(triple.2b,triple.1b)
+triples.of<-bind_rows(triple.lf,triple.rf,triple.cf2,triple.lcf,triple.rcf,triple.lfl,triple.rfl)
 
 #Now the Densities
 library(MASS)
@@ -268,7 +271,9 @@ rbind.Adam<-rbind(groundout.utm,groundout.c,groundout.1b,groundout.2b,groundout.
 weights.Adam<-c(rep(3/76,length(groundout.utm$Description)),rep(1/76,length(groundout.c$Description)),rep(1/76,length(groundout.1b$Description)),rep(6/76,length(groundout.2b$Description)),rep(6/76,length(groundout.3b$Description)),rep(11/76,length(groundout.ss$Description)),rep(3/76,length(popout.2b$Description)),rep(3/76,length(flyout.cf$Description)),
                 rep(7/76,length(flyout.rf$Description)),rep(2/76,length(lineout.2b$Description)),rep(1/76,length(lineout.ss$Description)),rep(1/76,length(lineout.cf$Description)),rep(1/76,length(lineout.rf$Description)),rep(2/76,length(error.2b$Description)),rep(1/76,length(error.ss$Description)),rep(5/76,length(single.lf$Description)),rep(9/76,length(single.rf$Description)),
                 rep(1/76,length(single.lcf$Description)),rep(1/76,length(single.3b$Description)),rep(2/76,length(single.2b$Description)),rep(4/76,length(single.cf$Description)),rep(1/76,length(single.rfl$Description)),rep(1/76,length(double.lf$Description)),rep(1/76,length(double.lfl$Description)),rep(1/76,length(double.rfl$Description)))
-rbind.Adam%>%ggplot(aes(x=x,y=z,weight=weights.Adam))+xlim(0,250)+ylim(0,250)+stat_density2d()
+rbind.Adam%>%ggplot(aes(x=x,y=z,weight=weights.Adam))+xlim(0,250)+ylim(0,250)+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+stat_density2d()+ggtitle("F bar for D-III Player")
+
+
 length(rbind.Adam$Description)
 densitymat.Adam<-rbind.Adam%>%dplyr::select(x,z)%>%mutate(x1=as.numeric(x))%>%mutate(x2=as.numeric(z))
 x.Adam<-c(densitymat.Adam$x1)
@@ -489,3 +494,41 @@ ggplot(full.spray, aes(x,y2, weights=full.prob.vector,ymin=0,ymax=250,xmin=0,xma
 
 km.2
 write your own kmeans 
+
+
+
+draws<-rbinom(1000,10,c(1/3,2/3))
+
+plot(density(draws),col="black",main="Bandwidth Example",ylim=c(0,.2))
+lines(density(draws,bw=.3),col="red")
+lines(density(draws,bw=5),col="blue")
+
+par(mfrow=c(2,3))
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][1,],25,25),main="Type 1")
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][2,],25,25),main="Type 2")
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][3,],25,25),main="Type 3")
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][4,],25,25),main="Type 4")
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][5,],25,25),main="Type 5")
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][6,],25,25),main="Type 6")
+
+
+
+
+tone<-single.lf%>%filter(batter.name %in% tophundred[finalclust[[1]]==1])%>%ggplot(aes(x=x,y=z,xmin=0,xmax=250,ymin=0,ymax=250))+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density2d()+ggtitle("Type 1")
+ttwo<-single.lf%>%filter(batter.name %in% tophundred[finalclust[[1]]==2])%>%ggplot(aes(x=x,y=z,xmin=0,xmax=250,ymin=0,ymax=250))+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density2d()+ggtitle("Type 2")
+tthree<-single.lf%>%filter(batter.name %in% tophundred[finalclust[[1]]==3])%>%ggplot(aes(x=x,y=z,xmin=0,xmax=250,ymin=0,ymax=250))+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density2d()+ggtitle("Type 3")
+tfour<-single.lf%>%filter(batter.name %in% tophundred[finalclust[[1]]==4])%>%ggplot(aes(x=x,y=z,xmin=0,xmax=250,ymin=0,ymax=250))+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density2d()+ggtitle("Type 4")
+tfive<-single.lf%>%filter(batter.name %in% tophundred[finalclust[[1]]==5])%>%ggplot(aes(x=x,y=z,xmin=0,xmax=250,ymin=0,ymax=250))+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density2d()+ggtitle("Type 5")
+tsix<-single.lf%>%filter(batter.name %in% tophundred[finalclust[[1]]==6])%>%ggplot(aes(x=x,y=z,xmin=0,xmax=250,ymin=0,ymax=250))+annotation_custom(field, xmin=-35, xmax=280, ymin=35, ymax=235)+theme(panel.ontop=TRUE,panel.background=element_rect(colour=NA,fill="transparent"))+geom_density2d()+ggtitle("Type 6")
+
+multiplot(tone,tfour,ttwo,tfive,tthree,tsix,cols=3)
+par(mfrow=c(2,3))
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][1,],25,25),main="Type 1")
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][2,],25,25),main="Type 2")
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][3,],25,25),main="Type 3")
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][4,],25,25),main="Type 4")
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][5,],25,25),main="Type 5")
+contour(seq(1,25,1),seq(1,25,1),matrix(finalclust[[2]][6,],25,25),main="Type 6")
+
+spraycharts%>%filter(batter.name %in% tophundred)%>%filter(type=="H")
+spraycharts%>%filter(type=="H")

@@ -285,7 +285,7 @@ for (z in 1:100){
     names<-c()
     names<-topfifty[finalclust[[1]]==i]
     
-    double.player<-double.lcf%>%filter(batter.name %in% names)
+    double.player<-singles.of%>%filter(batter.name %in% names)
     if (nrow(double.player)==0){
       groupdens[i,]<-c(rep(NA,625))
     } else {
@@ -323,7 +323,7 @@ for (z in 1:100){
       names<-c()
       names<-topfifty[permclust==i]
       
-      double.player<-double.lcf%>%filter(batter.name %in% names)
+      double.player<-singles.of%>%filter(batter.name %in% names)
       if (nrow(double.player)==0){
         newgroupdens[i,]<-c(rep(0,625))
       } else {
@@ -361,4 +361,6 @@ double.des<-c("double.lf","double.rf","double.cf2","double.utm","double.lcf","do
 triple.des<-c("triple.lf","triple.rf","triple.cf2","triple.utm","triple.lcf","triple.rcf","triple.lfl","triple.rfl","triple.ss","triple.2b","triple.3b","triple.1b","triple.tls","triple.trs")
 descriptions<-c(single.des,double.des,triple.des)
 
-
+doubles.of.p
+triples.of.p
+singles.of.p

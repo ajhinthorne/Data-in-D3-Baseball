@@ -203,14 +203,13 @@ WSS[i]<-sum(center.mat^2)}
 WWS[m]<-sum(WSS)
 }
 
+finalclust[[1]]
+
 #p-value (permutation test)
 pvals<-c()
-for (z in 1:100){
-finalclust<-list()
 finalKL<-c()
 KL.perms<-c()
 
-finalclust<-kmeanie(dataz,6)
 finalclust[[1]]
 
 finaldist<-matrix(c(NA),6,6)
@@ -222,7 +221,7 @@ finalKL<-sum(finaldist)/2
 #randomly assign clusters
 KL.perms<-c()
 for (m in 1:100){
-permclust<-sample(finalclust[[1]],50,replace=FALSE)
+permclust<-sample(finalclust[[1]],100,replace=FALSE)
 table2<-as.data.frame(table(permclust))
 centers<-matrix(c(NA),nrow=6,ncol=625)
 for (i in 1:6){
@@ -232,27 +231,34 @@ for (i in 1:6){
   }
 centers[i,]<-cen
 }
-centerdist<-matrix(c(NA),6,6)
-for (i in 1:6){
-  for (j in 1:6){
+
+centers<-na.omit(centers)
+centerdist<-matrix(c(NA),nrow(centers),nrow(centers))
+for (i in 1:nrow(centers)){
+  for (j in 1:nrow(centers)){
     centerdist[i,j]<-.5*(KL.plugin(centers[i,],centers[j,])+KL.plugin(centers[j,],centers[i,]))
   }}
 KL.perms[m]<-sum(centerdist)/2
 }
-pvals[z]<-sum(ifelse(KL.perms>finalKL,1,0))/100
-}
+pvals<-sum(ifelse(KL.perms>finalKL,1,0))/100
 
-finalclust[[1]]
+total.pvals
+
 
 #doubles to lcf
+pvals<-c()
+for (z in 1:length(single.des)){
+  set.seed(47)
 groupdens<-matrix(c(NA),6,625)
 for (i in 1:6){
 names<-c()
-names<-topfifty[finalclust[[1]]==i]
+names<-tophundred[finalclust[[1]]==i]
 
-double.player<-double.rcf%>%filter(batter.name %in% names)
-groupdens[i,]<-kde2d(double.player$x,double.player$z,lims = c(0,250,0,250))$z
+double.player<-single.des[[z]]%>%filter(batter.name %in% names)
+groupdens[i,]<-kde2d(double.player$x,double.player$z,lims = c(0,250,0,250),h=10)$z
 }
+
+groupdens<-na.omit(groupdens)
 
 for (i in 1:nrow(groupdens)){
   for (j in 1:ncol(groupdens)){
@@ -261,15 +267,14 @@ groupdens[i,j]<-ifelse(groupdens[i,j]==0,1e-300,groupdens[i,j])
     
   }}
 
-
-
-centerdist<-matrix(c(NA),6,6)
-for (i in 1:6){
-  for (j in 1:6){
+centerdist<-matrix(c(NA),nrow(groupdens),nrow(groupdens))
+for (i in 1:nrow(groupdens)){
+  for (j in 1:nrow(groupdens)){
     centerdist[i,j]<-.5*(KL.plugin(groupdens[i,],groupdens[j,])+KL.plugin(groupdens[j,],groupdens[i,]))
   }}  
 double.KL<-sum(centerdist)/2
 
+<<<<<<< HEAD
 #for positions
 
 pvals<-c()
@@ -311,19 +316,25 @@ for (z in 1:100){
       finaldist[i,j]<-.5*(KL.plugin(groupdens[i,],groupdens[j,])+KL.plugin(groupdens[j,],groupdens[i,]))
     }}
   finalKL<-sum(finaldist)/2
+=======
+>>>>>>> 30b21e72e22018f966b36c852219998b1ef96d7a
   
   #randomly assign clusters
   KL.perms<-c()
-  for (m in 1:100){
+  for (m in 1:500){
     permclust<-c()
-    permclust<-sample(finalclust[[1]],50,replace=FALSE)
+    permclust<-sample(finalclust[[1]],100,replace=FALSE)
     table2<-as.data.frame(table(permclust))
     newgroupdens<-matrix(c(NA),6,625)
     for (i in 1:6){
       names<-c()
-      names<-topfifty[permclust==i]
+      names<-tophundred[permclust==i]
       
+<<<<<<< HEAD
       double.player<-singles.of%>%filter(batter.name %in% names)
+=======
+      double.player<-single.des[[z]]%>%filter(batter.name %in% names)
+>>>>>>> 30b21e72e22018f966b36c852219998b1ef96d7a
       if (nrow(double.player)==0){
         newgroupdens[i,]<-c(rep(0,625))
       } else {
@@ -351,16 +362,23 @@ for (z in 1:100){
 
     KL.perms[m]<-sum(centerdist)/2
   }
-  pvals[z]<-sum(ifelse(KL.perms>finalKL,1,0))/100
+  pvals[z]<-sum(ifelse(KL.perms>double.KL,1,0))/500
 }
 
 
+
+doubles.p
+triples.p
+singles.p
 #permclust for positions
-single.des<-c("single.lf","single.rf","single.cf2","single.utm","single.lcf","single.rcf","single.lfl","single.rfl","single.ss","single.2b","single.3b","single.1b","single.tls","single.trs")
-double.des<-c("double.lf","double.rf","double.cf2","double.utm","double.lcf","double.rcf","double.lfl","double.rfl","double.ss","double.2b","double.3b","double.1b","double.tls","double.trs")
-triple.des<-c("triple.lf","triple.rf","triple.cf2","triple.utm","triple.lcf","triple.rcf","triple.lfl","triple.rfl","triple.ss","triple.2b","triple.3b","triple.1b","triple.tls","triple.trs")
+single.des<-list(single.lf,single.rf,single.cf2,single.utm,single.lcf,single.rcf,single.ss,single.2b,single.3b,single.1b,single.tls,single.trs)
+double.des<-list(double.lf,double.rf,double.cf2,double.lcf,double.rcf,double.lfl,double.rfl)
+triple.des<-list(triple.rf,triple.cf2,triple.lcf,triple.rcf,triple.rfl)
 descriptions<-c(single.des,double.des,triple.des)
 
+<<<<<<< HEAD
 doubles.of.p
 triples.of.p
 singles.of.p
+=======
+>>>>>>> 30b21e72e22018f966b36c852219998b1ef96d7a

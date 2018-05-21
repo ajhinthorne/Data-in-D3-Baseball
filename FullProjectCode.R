@@ -135,7 +135,7 @@ View(spraycharts)
 #The spraychart is built on a 250x250 grid. y values are flipped, with home plate at the bottom. Flip this value (-y+250) for better visualization
 library(dplyr)
 spraycharts<-spraycharts%>%mutate(z=-y+250)
-#Cut down data to what we need, save spraycharts for reference
+#Cut down data to what we need, save "spraycharts" for reference
 spraycharts2<-spraycharts%>%dplyr::select("Description","x","z","type","batter.name")
 
 ##Defining each hit type
@@ -155,9 +155,10 @@ hitscatter4+geom_point(aes(x=125,y=200),color="black")+geom_point(aes(x=125,y=13
 hitscatter5<-hitscatter4+geom_abline(slope=-.5,intercept=207.5)+geom_abline(slope=.5,intercept=82.5)
 hitscatter5
 
-##hit charts fro all play by plays
+##hit charts for all play by plays
 single.lf<-spraycharts2%>%filter(Description=="Single")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
 single.rf<-spraycharts2%>%filter(Description=="Single")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)
+#cf is the mix of the far center field plus the two triangles outside of the infield. Hits to cf will be cf2
 single.cf<-spraycharts2%>%filter(Description=="Single")%>%filter(z<=235)%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
 single.triangle1<-spraycharts2%>%filter(Description=="Single")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z<=(.5*x)+82.5)
 single.triangle2<-spraycharts2%>%filter(Description=="Single")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z<=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
@@ -171,6 +172,7 @@ single.ss<-spraycharts2%>%filter(Description=="Single")%>%filter(z<=235)%>%filte
 single.2b<-spraycharts2%>%filter(Description=="Single")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
 single.3b<-spraycharts2%>%filter(Description=="Single")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
 single.1b<-spraycharts2%>%filter(Description=="Single")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)
+#further mixes for "left side" and "right side" of the infield
 single.tls<-bind_rows(single.3b,single.ss)
 single.trs<-bind_rows(single.2b,single.1b)
 singles.of<-bind_rows(single.lfl,single.lf,single.lcf,single.cf2,single.rcf,single.rf,single.rfl)
@@ -212,6 +214,104 @@ triple.1b<-spraycharts2%>%filter(Description=="Triple")%>%filter(z<=235)%>%filte
 triple.tls<-bind_rows(triple.3b,triple.ss)
 triple.trs<-bind_rows(triple.2b,triple.1b)
 triples.of<-bind_rows(triple.lf,triple.rf,triple.cf2,triple.lcf,triple.rcf,triple.lfl,triple.rfl)
+
+###outs
+#popout
+popout.lf<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
+popout.rf<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)
+popout.cf<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z<=235)%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
+popout.triangle1<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z<=(.5*x)+82.5)
+popout.triangle2<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z<=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
+popout.cf2<-bind_rows(popout.cf,popout.triangle1,popout.triangle2)
+popout.utm<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z<=235)%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(.5*x)+82.5)
+popout.lcf<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z<=235)%>%filter(z<=(-5.5*x)+722.5)%>%filter(z>=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
+popout.rcf<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
+popout.lfl<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z>=25)%>%filter(x>=5)%>%filter(z<=(-1.25*x)+191.25)
+popout.rfl<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z>=25)%>%filter(x>=5)%>%filter(z<=(1.25*x)-121.25)
+popout.ss<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z<=235)%>%filter(z<=(-5.5*x)+722.5)%>%filter(z>=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
+popout.2b<-spraycharts2%>%filter(Description=="Pop Out")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
+popout.3b<-spraycharts2%>%filter(Description=="Pop Out" | Description=="Bunt Pop Out")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
+popout.1b<-spraycharts2%>%filter(Description=="Pop Out" | Description=="Bunt Pop Out")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)
+popout.tls<-bind_rows(popout.3b,popout.ss)
+popout.trs<-bind_rows(popout.2b,popout.1b)
+popout.c<-spraycharts2%>%filter(Description=="Pop Out" | Description=="Bunt Pop Out")%>%filter(z<=60)
+
+lineout.lf<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
+lineout.rf<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)
+lineout.cf<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z<=235)%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
+lineout.triangle1<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z<=(.5*x)+82.5)
+lineout.triangle2<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z<=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
+lineout.cf2<-bind_rows(lineout.cf,lineout.triangle1,lineout.triangle2)
+lineout.utm<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z<=235)%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(.5*x)+82.5)
+lineout.lcf<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z<=235)%>%filter(z<=(-5.5*x)+722.5)%>%filter(z>=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
+lineout.rcf<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
+lineout.lfl<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z>=25)%>%filter(x>=5)%>%filter(z<=(-1.25*x)+191.25)
+lineout.rfl<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z>=25)%>%filter(x>=5)%>%filter(z<=(1.25*x)-121.25)
+lineout.ss<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z<=235)%>%filter(z<=(-5.5*x)+722.5)%>%filter(z>=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
+lineout.2b<-spraycharts2%>%filter(Description=="Lineout")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
+lineout.3b<-spraycharts2%>%filter(Description=="Lineout" | Description=="Bunt Lineout")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
+lineout.1b<-spraycharts2%>%filter(Description=="Lineout" | Description=="Bunt Lineout")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)
+lineout.c<-spraycharts2%>%filter(Description=="Lineout" | Description=="Bunt Lineout")%>%filter(z<=60)
+
+groundout.lf<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
+groundout.rf<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)
+groundout.cf<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z<=235)%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
+groundout.triangle1<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z<=(.5*x)+82.5)
+groundout.triangle2<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z<=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
+groundout.cf2<-bind_rows(groundout.cf,groundout.triangle1,groundout.triangle2)
+groundout.utm<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z<=235)%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(.5*x)+82.5)
+groundout.lcf<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z<=235)%>%filter(z<=(-5.5*x)+722.5)%>%filter(z>=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
+groundout.rcf<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
+groundout.lfl<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z>=25)%>%filter(x>=5)%>%filter(z<=(-1.25*x)+191.25)
+groundout.rfl<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z>=25)%>%filter(x>=5)%>%filter(z<=(1.25*x)-121.25)
+groundout.ss<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z<=235)%>%filter(z<=(-5.5*x)+722.5)%>%filter(z>=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
+groundout.2b<-spraycharts2%>%filter(Description=="Groundout")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
+groundout.3b<-spraycharts2%>%filter(Description=="Groundout" | Description=="Bunt Groundout")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
+groundout.1b<-spraycharts2%>%filter(Description=="Groundout" | Description=="Bunt Groundout")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)
+groundout.c<-spraycharts2%>%filter(Description=="Groundout" | Description=="Bunt Groundout")%>%filter(z<=55)
+
+flyout.lf<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
+flyout.rf<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)
+flyout.cf<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z<=235)%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
+flyout.triangle1<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z<=(.5*x)+82.5)
+flyout.triangle2<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z<=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
+flyout.cf2<-bind_rows(flyout.cf,flyout.triangle1,flyout.triangle2)
+flyout.utm<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z<=235)%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(.5*x)+82.5)
+flyout.lcf<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z<=235)%>%filter(z<=(-5.5*x)+722.5)%>%filter(z>=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
+flyout.rcf<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
+flyout.lfl<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z>=25)%>%filter(x>=5)%>%filter(z<=(-1.25*x)+191.25)
+flyout.rfl<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z>=25)%>%filter(x>=5)%>%filter(z<=(1.25*x)-121.25)
+flyout.ss<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z<=235)%>%filter(z<=(-5.5*x)+722.5)%>%filter(z>=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
+flyout.2b<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
+flyout.3b<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
+flyout.1b<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)
+flyout.c<-spraycharts2%>%filter(Description=="Flyout")%>%filter(z<=55)
+
+###errors
+error.lf<-spraycharts2%>%filter(type=="E")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
+error.rf<-spraycharts2%>%filter(type=="E")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)
+error.cf<-spraycharts2%>%filter(type=="E")%>%filter(z<=235)%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
+error.triangle1<-spraycharts2%>%filter(type=="E")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z>=(-.5*x)+207.5)%>%filter(z<=(.5*x)+82.5)
+error.triangle2<-spraycharts2%>%filter(type=="E")%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z<=(-.5*x)+207.5)%>%filter(z>=(.5*x)+82.5)
+error.cf2<-bind_rows(error.cf,error.triangle1,error.triangle2)
+error.utm<-spraycharts2%>%filter(type=="E")%>%filter(z<=235)%>%filter(z>=(5.5*x)-652.5)%>%filter(z>=(-5.5*x)+722.5)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(.5*x)+82.5)
+error.lcf<-spraycharts2%>%filter(type=="E")%>%filter(z<=235)%>%filter(z<=(-5.5*x)+722.5)%>%filter(z>=(-2.25*x)+316.25)%>%filter(z>=(.5*x)+82.5)
+error.rcf<-spraycharts2%>%filter(type=="E")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z>=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
+error.lfl<-spraycharts2%>%filter(type=="E")%>%filter(z>=25)%>%filter(x>=5)%>%filter(z<=(-1.25*x)+191.25)
+error.rfl<-spraycharts2%>%filter(type=="E")%>%filter(z>=25)%>%filter(x>=5)%>%filter(z<=(1.25*x)-121.25)
+error.ss<-spraycharts2%>%filter(type=="E")%>%filter(z<=235)%>%filter(z<=(-5.5*x)+722.5)%>%filter(z>=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
+error.2b<-spraycharts2%>%filter(type=="E")%>%filter(z<=235)%>%filter(z>=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)%>%filter(z<=(5.5*x)-652.5)
+error.3b<-spraycharts2%>%filter(type=="E")%>%filter(z<=235)%>%filter(x>=5)%>%filter(z>=(-1.25*x)+191.25)%>%filter(z<=(-2.25*x)+316.25)%>%filter(z<=(.5*x)+82.5)
+error.1b<-spraycharts2%>%filter(type=="E")%>%filter(z<=235)%>%filter(z>=(1.25*x)-121.25)%>%filter(z<=(2.25*x)-246.25)%>%filter(z<=(-.5*x)+207.5)
+error.c<-spraycharts2%>%filter(type=="E")%>%filter(z<=55)
+error.leftfielder<-rbind(error.lf,error.lfl)
+error.centerfielder<-rbind(error.cf,error.lcf,error.rcf)
+error.rightfielder<-rbind(error.rf,error.rfl)
+
+###Sample MLB players to cluster
+
+
+
 
 
 

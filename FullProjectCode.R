@@ -309,13 +309,48 @@ error.centerfielder<-rbind(error.cf,error.lcf,error.rcf)
 error.rightfielder<-rbind(error.rf,error.rfl)
 
 ###Sample MLB players to cluster
+names<-unique(spraycharts$batter.name)
 
+##Take away hitters with a few hits
+bad <- c()
+for (i in 1:length(names)) {
+  if (sum(spraycharts$batter.name==names[i]) < 20)
+    bad <- c(bad, i)
+}
+names <- names[-bad]
 
+#pick 100 or however many names you want, MUST CHOOSE PICK
+pick<-100
+cluster.names<-sample(names,pick,replace=FALSE)
 
+#Find all player densities
+library(MASS)
+density.matrix<-matrix(c(NA),nrow=pick,ncol=625)
+for (i in 1:pick){
+  x<-c(0,250)
+  y<-c(0,250)
+  player.vector<-spraycharts%>%filter(batter.name==cluster.names[i])%>%filter(Description!="Home Run")%>%filter(type=="H")%>%mutate(y2=-y+250)%>%dplyr::select(x,y2)
+  player.den<-kde2d(player.vector$x,player.vector$y2,lims=c(range(x),range(y)))
+  den.vector<-as.vector(player.den$z)
+  dataz[i,]<-den.vector
+  
+}
 
+#Create function for Jensen Shannon Divergence
+###Jensen-shannon divergence code from KL.plugin
+library(entropy)
+JS.dist<-function(dataa,datab){
+  
+  JS.dist<-c()
+  dist.combine<-c()
+  
+  dist.combine<-(.5*dataa)+(.5*datab)
+  JS.dist<-sqrt(.5*(KL.plugin(dataa,dist.combine)+KL.plugin(datab,dist.combine)))
+  return(JS.dist)
+}
 
-
-###kmeans for large densities
+###kmeans function for large densities
+##This k-means function takes a matrix of densities, calculates the JS distance between them, then clustering based on distance from eachother
 kmeanie <- function(data, k) {
   n <- nrow(data)
   centpick <- sample(n,k)
@@ -369,18 +404,21 @@ kmeanie <- function(data, k) {
   
 } 
 
+###running the function
+#number of clusters
+clust.numb<-5
+#data
+density.matrix
+#clustering
+set.seed(47)
+finalclust<-kmeanie(density.matrix,clust.numb)
+#clustervector
+finalclust[[1]]
+#clustercenters
+finalclust[[2]]
 
-###Jensen-shannon divergence code from KL.plugin
-library(entropy)
-JS.dist<-function(dataa,datab){
-  
-  JS.dist<-c()
-  dist.combine<-c()
-  
-  dist.combine<-(.5*dataa)+(.5*datab)
-  JS.dist<-sqrt(.5*(KL.plugin(dataa,dist.combine)+KL.plugin(datab,dist.combine)))
-  return(JS.dist)
-}
+
+
 
 
 ###checking optimal clusters
